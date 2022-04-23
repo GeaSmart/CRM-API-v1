@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -9,7 +10,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace CRM
@@ -28,9 +31,26 @@ namespace CRM
         {
 
             services.AddControllers();
-            services.AddSwaggerGen(c =>
+
+            services.AddDbContext<ApplicationDBContext>(options =>
+                {
+                    options.UseSqlServer(Configuration.GetConnectionString("defaultConnection"));
+                }
+            );
+
+            var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+            var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+
+            services.AddSwaggerGen(config =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "CRM", Version = "v1" });
+                config.SwaggerDoc("v1",
+                    new Microsoft.OpenApi.Models.OpenApiInfo() //Swashbuckle.AspNetCore.Swagger.info() se usa en versiones anteriores
+                    {
+                        Title = "Ejemplo de swagger",
+                        Description = "Esta es una documentación de swagger, aquí tambien puede ir información necesaria para utilizar el Api, etc..."
+                    }
+                );
+                config.IncludeXmlComments(xmlPath);
             });
         }
 
@@ -54,6 +74,15 @@ namespace CRM
             {
                 endpoints.MapControllers();
             });
+
+            //Configuración de middleware SWAGGER
+            app.UseSwagger();
+            app.UseSwaggerUI(config =>
+            {
+                config.SwaggerEndpoint("/swagger/v1/swagger.json", "API SWAGGER!");
+                config.RoutePrefix = ""; //para evitar problemas con la ruta en la que se lanza la aplicación al correr el proyecto
+            }
+            );
         }
     }
 }

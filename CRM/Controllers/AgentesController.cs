@@ -17,14 +17,14 @@ namespace CRM.Controllers
         private readonly ApplicationDBContext context;
         private readonly IMapper mapper;
 
-        public AgentesController(ApplicationDBContext context, IMapper mapper)
+        public AgentesController(ApplicationDBContext context, IMapper mapper)//inyección de dependencias :)
         {
             this.context = context;
             this.mapper = mapper;
         }
 
         [HttpGet]
-        public async Task<List<AgenteDTO>> Get()
+        public async Task<ActionResult<List<AgenteDTO>>> Get()
         {
             var agentes = await context.Agentes.ToListAsync();
             return mapper.Map<List<AgenteDTO>>(agentes);
@@ -36,7 +36,7 @@ namespace CRM.Controllers
             var agente = await context.Agentes.FirstOrDefaultAsync(x=>x.Id == id);
 
             if (agente == null)
-                return NotFound("No se encontró el agente.");
+                return NotFound("Registro no encontrado.");
 
             return mapper.Map<AgenteDTO>(agente);
         }

@@ -1,4 +1,6 @@
-﻿using CRM.Entidades;
+﻿using AutoMapper;
+using CRM.DTO;
+using CRM.Entidades;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -13,16 +15,19 @@ namespace CRM.Controllers
     public class AgentesController : ControllerBase
     {
         private readonly ApplicationDBContext context;
+        private readonly IMapper mapper;
 
-        public AgentesController(ApplicationDBContext context)
+        public AgentesController(ApplicationDBContext context, IMapper mapper)
         {
             this.context = context;
+            this.mapper = mapper;
         }
 
         [HttpGet]
-        public async Task<List<Agente>> Get()
+        public async Task<List<AgenteDTO>> Get()
         {
-            return await context.Agentes.ToListAsync();
+            var agentes = await context.Agentes.ToListAsync();
+            return mapper.Map<List<AgenteDTO>>(agentes);
         }
 
         [HttpPost]

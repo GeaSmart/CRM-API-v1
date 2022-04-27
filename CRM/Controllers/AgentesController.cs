@@ -30,13 +30,25 @@ namespace CRM.Controllers
             return mapper.Map<List<AgenteDTO>>(agentes);
         }
 
-        [HttpPost]
-        public async Task<ActionResult> Post([FromBody] Agente agente)
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<AgenteDTO>> Get(int id)
         {
-            var existe = await context.Agentes.AnyAsync(x => x.Nombre == agente.Nombre);
-            if (existe)            
-                return BadRequest($"Ya existe un agente con el nombre {agente.Nombre}");
+            var agente = await context.Agentes.FirstOrDefaultAsync(x=>x.Id == id);
 
+            if (agente == null)
+                return NotFound("No se encontró el agente.");
+
+            return mapper.Map<AgenteDTO>(agente);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Post([FromBody] AgenteCreacionDTO agenteCreacionDTO)
+        {
+            var existe = await context.Agentes.AnyAsync(x => x.Nombre == agenteCreacionDTO.Nombre);
+            if (existe)            
+                return BadRequest($"Ya existe un agente con el nombre {agenteCreacionDTO.Nombre}");
+
+            var agente = mapper.Map<Agente>(agenteCreacionDTO);
             context.Add(agente);
             await context.SaveChangesAsync();
             return Ok();

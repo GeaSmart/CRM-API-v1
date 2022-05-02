@@ -46,7 +46,7 @@ namespace CRM
                 config.SwaggerDoc("v1",
                     new Microsoft.OpenApi.Models.OpenApiInfo() //Swashbuckle.AspNetCore.Swagger.info() se usa en versiones anteriores
                     {
-                        Title = "Ejemplo de swagger",
+                        Title = "Sistema CRM",
                         Description = "Esta es una documentación de swagger, aquí tambien puede ir información necesaria para utilizar el Api, etc..."
                     }
                 );

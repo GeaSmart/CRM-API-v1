@@ -14,7 +14,7 @@ namespace CRM.Entidades
         [Required]
         [StringLength(70, ErrorMessage = "El campo {0} no debe exceder de {1} caracteres.")]
         public string Nombre { get; set; }
-        public string UrlPerfil { get; set; }
+        public string UrlPerfil { get; set; }        
 
         //Propiedades de navegación
         public List<Contacto> Contactos { get; set; }

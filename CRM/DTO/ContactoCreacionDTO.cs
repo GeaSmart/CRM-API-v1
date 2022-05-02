@@ -4,12 +4,10 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CRM.Entidades
+namespace CRM.DTO
 {
-    public class Contacto
+    public class ContactoCreacionDTO
     {
-        [Key]
-        public int Id { get; set; }
         [Required]
         public DateTime Fecha { get; set; }
         [Required]
@@ -17,9 +15,5 @@ namespace CRM.Entidades
         public string Medio { get; set; }
         [StringLength(250)]
         public string Descripcion { get; set; }
-        public int ProspectoId { get; set; }
-
-        //Propiedades de navegación
-        public Prospecto Prospecto { get; set; }
     }
 }

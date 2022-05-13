@@ -44,16 +44,29 @@ namespace CRM.Controllers
         [HttpPost]
         public async Task<ActionResult> Post([FromBody] ProspectoCreacionDTO prospectoCreacionDTO)
         {
-            var existe = await context.Prospectos.AnyAsync(x => x.Nombre == prospectoCreacionDTO.Nombre);
+            if (prospectoCreacionDTO.AgentesIds == null)
+                return BadRequest("No se puede insertar un prospecto sin asignarle al menos un agente");
 
-            if (existe)
-                return BadRequest("Ya existe un registro con el mismo nombre.");
+            //obtengo la intersección entre ids recibidos e ids de la base de datos
+            var agentesIds = await context.Agentes.Where(x => prospectoCreacionDTO.AgentesIds.Contains(x.Id)).Select(x => x.Id).ToListAsync();
+
+            //Con esto me aseguro que los ids que nos envíen realmente existan
+            if (agentesIds.Count != prospectoCreacionDTO.AgentesIds.Count)
+                return BadRequest("Se ingresó al menos un agente que no existe");
 
             var prospecto = mapper.Map<Prospecto>(prospectoCreacionDTO);
+
+            AsignarOrdenAgentes(prospecto);
+
             context.Prospectos.Add(prospecto);
             await context.SaveChangesAsync();
             return Ok();
         }
 
+        private void AsignarOrdenAgentes(Prospecto prospecto)
+        {
+            for (int i = 0; i < prospecto.AgentesProspectos.Count; i++)
+                prospecto.AgentesProspectos[i].Orden = i;
+        }
     }
 }

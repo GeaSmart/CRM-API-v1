@@ -18,5 +18,6 @@ namespace CRM.Entidades
 
         //Propiedades de navegación
         public List<Contacto> Contactos { get; set; }
+        public List<AgenteProspecto> AgentesProspectos { get; set; }
     }
 }

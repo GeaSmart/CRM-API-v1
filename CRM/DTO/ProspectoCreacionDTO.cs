@@ -12,5 +12,6 @@ namespace CRM.DTO
         [StringLength(70, ErrorMessage = "El campo {0} no debe exceder de {1} caracteres.")]
         public string Nombre { get; set; }
         public string UrlPerfil { get; set; }
+        public List<int> AgentesIds { get; set; }
     }
 }

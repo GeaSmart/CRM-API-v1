@@ -84,5 +84,17 @@ namespace CRM.Controllers
             await context.SaveChangesAsync();
             return NoContent();
         }
+
+        [HttpDelete("{id:int}")]
+        public async Task<ActionResult> Delete(int id, int prospectoId)
+        {
+            var existeContacto = await context.Contactos.Where(x => x.ProspectoId == prospectoId).AnyAsync(x => x.Id == id);//debo validar que el contacto pertenezca al prospecto especificado
+            if (!existeContacto)
+                return NotFound("El contacto no existe o no coincide con el prospecto especificado");
+
+            context.Contactos.Remove(new Contacto { Id = id });
+            await context.SaveChangesAsync();
+            return NoContent();
+        }
     }
 }

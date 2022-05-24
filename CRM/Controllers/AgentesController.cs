@@ -73,5 +73,17 @@ namespace CRM.Controllers
             await context.SaveChangesAsync();
             return NoContent();
         }
+
+        [HttpDelete("{id:int}")]
+        public async Task<ActionResult> Delete(int id)
+        {
+            var existeAgente = await context.Agentes.AnyAsync(x => x.Id == id);
+            if (!existeAgente)
+                return NotFound("El agente no existe");
+
+            context.Agentes.Remove(new Agente { Id = id });
+            await context.SaveChangesAsync();
+            return NoContent();
+        }
     }
 }

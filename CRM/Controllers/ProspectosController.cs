@@ -86,6 +86,18 @@ namespace CRM.Controllers
             return NoContent();
         }
 
+        [HttpDelete("{id:int}")]
+        public async Task<ActionResult> Delete(int id)
+        {
+            var existeProspecto = await context.Prospectos.AnyAsync(x => x.Id == id);
+            if (!existeProspecto)
+                return NotFound("El prospecto no existe");
+
+            context.Prospectos.Remove(new Prospecto { Id = id });
+            await context.SaveChangesAsync();
+            return NoContent();
+        }
+
         private void AsignarOrdenAgentes(Prospecto prospecto)
         {
             for (int i = 0; i < prospecto.AgentesProspectos.Count; i++)

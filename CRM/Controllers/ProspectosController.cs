@@ -30,15 +30,19 @@ namespace CRM.Controllers
             return mapper.Map<List<ProspectoDTO>>(prospectos);
         }
 
-        [HttpGet("{id:int}")]
-        public async Task<ActionResult<ProspectoDTO>> Get(int id)
+        [HttpGet("{id:int}", Name = "ObtenerProspecto")]
+        public async Task<ActionResult<ProspectoConAgentesDTO>> Get(int id)
         {
-            var prospecto = await context.Prospectos.FirstOrDefaultAsync(x => x.Id == id);
+            var prospecto = await context.Prospectos
+                .Include(x=>x.AgentesProspectos)
+                .ThenInclude(x=>x.Agente)
+                .FirstOrDefaultAsync(x => x.Id == id);
 
             if (prospecto == null)
                 return NotFound("Registro no encontrado.");
 
-            return mapper.Map<ProspectoDTO>(prospecto);
+            prospecto.AgentesProspectos = prospecto.AgentesProspectos.OrderBy(x => x.Orden).ToList(); //ordenando la lista por el campo orden
+            return mapper.Map<ProspectoConAgentesDTO>(prospecto);
         }
 
         [HttpPost]
@@ -60,7 +64,26 @@ namespace CRM.Controllers
 
             context.Prospectos.Add(prospecto);
             await context.SaveChangesAsync();
-            return Ok();
+
+            var prospectoDTO = mapper.Map<ProspectoDTO>(prospecto);
+            return CreatedAtRoute("ObtenerProspecto", new { id = prospecto.Id }, prospectoDTO);
+        }
+
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult> Put(int id, ProspectoCreacionDTO prospectoCreacionDTO)
+        {
+            var prospecto = await context.Prospectos.Include(x => x.AgentesProspectos).FirstOrDefaultAsync(x => x.Id == id); //así traigo el prospecto y también sus agentes
+
+            if (prospecto == null)
+                return NotFound("El prospecto no existe");
+
+            prospecto = mapper.Map(prospectoCreacionDTO, prospecto); //mapeando objetos existentes de origen y destino
+
+            AsignarOrdenAgentes(prospecto);
+
+            context.Prospectos.Update(prospecto);
+            await context.SaveChangesAsync();
+            return NoContent();
         }
 
         private void AsignarOrdenAgentes(Prospecto prospecto)

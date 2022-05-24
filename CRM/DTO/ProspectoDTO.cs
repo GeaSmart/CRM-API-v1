@@ -10,6 +10,6 @@ namespace CRM.DTO
         public int Id { get; set; }
         public string Nombre { get; set; }
         public string UrlPerfil { get; set; }
-        public List<AgenteDTO> Agentes { get; set; }
+        //public List<AgenteDTO> Agentes { get; set; }
     }
 }

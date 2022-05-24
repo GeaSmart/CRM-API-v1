@@ -30,15 +30,18 @@ namespace CRM.Controllers
             return mapper.Map<List<AgenteDTO>>(agentes);
         }
 
-        [HttpGet("{id:int}")]
-        public async Task<ActionResult<AgenteDTO>> Get(int id)
+        [HttpGet("{id:int}", Name = "ObtenerAgentes")]
+        public async Task<ActionResult<AgenteConProspectosDTO>> Get(int id)
         {
-            var agente = await context.Agentes.FirstOrDefaultAsync(x=>x.Id == id);
+            var agente = await context.Agentes
+                .Include(x=>x.AgentesProspectos)
+                .ThenInclude(x=>x.Prospecto)
+                .FirstOrDefaultAsync(x=>x.Id == id);
 
             if (agente == null)
                 return NotFound("Registro no encontrado.");
 
-            return mapper.Map<AgenteDTO>(agente);
+            return mapper.Map<AgenteConProspectosDTO>(agente);
         }
 
         [HttpPost]
@@ -51,7 +54,24 @@ namespace CRM.Controllers
             var agente = mapper.Map<Agente>(agenteCreacionDTO);
             context.Add(agente);
             await context.SaveChangesAsync();
-            return Ok();
+
+            var agenteDTO = mapper.Map<AgenteDTO>(agente);
+            return CreatedAtRoute("ObtenerAgentes", new { id = agente.Id }, agenteDTO);
+        }
+
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult> Put(int id, AgenteCreacionDTO agenteCreacionDTO)
+        {
+            var existeAgente = await context.Agentes.AnyAsync(x => x.Id == id);
+            if (!existeAgente)
+                return NotFound("No existe el agente");
+
+            var agente = mapper.Map<Agente>(agenteCreacionDTO);
+            agente.Id = id;
+
+            context.Update(agente);
+            await context.SaveChangesAsync();
+            return NoContent();
         }
     }
 }
